@@ -131,3 +131,19 @@ class ConflictingArrow(ProgrammingError):
 
     def __str__(self):
         return "Conflicting arrow detected: {}".format(self.arrow)
+
+
+class UnreachableStep(ProgrammingError):
+    """
+    Exception raised when an unreachable step is found
+
+    :ivar step:
+        The stray step
+    """
+
+    def __init__(self, step):
+        self.step = step
+
+    def __str__(self):
+        return "Step {} cannot be reached from the initial step".format(
+            self.step.Meta.name)

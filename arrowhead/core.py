@@ -8,6 +8,7 @@ from arrowhead.errors import DuplicateInitialStep
 from arrowhead.errors import NoArrowCouldHaveBeenFollowed
 from arrowhead.errors import NoInitialStep
 from arrowhead.errors import NoSuchStep
+from arrowhead.errors import UnreachableStep
 
 
 class StopFlow(Exception):
@@ -194,6 +195,9 @@ class _FlowMeta(type):
         mcls._check_arrows(steps)
         if initial is not None:
             mcls._assign_levels(steps, initial)
+            for step in steps.values():
+                if step.Meta.level is None:
+                    raise UnreachableStep(step)
         namespace['Meta'] = type('FlowMeta', (object,), {
             'steps': steps,
             'initial': initial,
