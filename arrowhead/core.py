@@ -255,10 +255,21 @@ class _FlowMeta(type):
 
     def _assign_levels(steps, initial):
         branch = collections.namedtuple('branch', 'target level')
-        todo = []
-        todo.append(branch(steps[initial], 1))
+        todo = collections.deque()
+        # Set initial step to level=1 (if it's not something else already)
+        if steps[initial].Meta.level is None:
+            steps[initial].Meta.level = 1
+        # For all steps with existing levels, add them to the TODO list and
+        # reset level to None
+        for step in steps.values():
+            if step.Meta.level is not None:
+                todo.append(branch(step, step.Meta.level))
+                step.Meta.level = None
+        # While there are more steps to do, assign the level and recursively
+        # (well, not really because we use the todo list) process all outgoing
+        # arrows.
         while todo:
-            step, level = todo.pop()
+            step, level = todo.popleft()
             if step.Meta.level is None:
                 step.Meta.level = level
             for arrow in step.Meta.arrows:
