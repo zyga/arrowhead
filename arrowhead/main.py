@@ -12,14 +12,7 @@ from arrowhead.inspector import print_dot_graph
 from arrowhead.inspector import print_flow_state
 
 
-def main(flow_cls, argv=None):
-    """
-    Command line wrapper for any flow.
-
-    This wrapper allows to execute any flow directly from command line. Several
-    command line options are exposed for debugging and analysis.
-    """
-    parser = argparse.ArgumentParser()
+def add_flow_arguments(parser):
     group = parser.add_mutually_exclusive_group()
     group.set_defaults(action='run')
     group.add_argument(
@@ -40,19 +33,34 @@ def main(flow_cls, argv=None):
     parser.add_argument(
         '--delay', default=0, action='store', type=int,
         help="Insert artificial delays between steps")
-    ns = parser.parse_args(argv)
-    if ns.action == 'dot':
+
+
+def main(flow_cls, argv=None, **kwargs):
+    """
+    Command line wrapper for any flow.
+
+    This wrapper allows to execute any flow directly from command line. Several
+    command line options are exposed for debugging and analysis.
+    """
+    parser = argparse.ArgumentParser()
+    add_flow_arguments(parser)
+    flow_ns = parser.parse_args(argv)
+    run_flow(flow_cls, flow_ns, **kwargs)
+
+
+def run_flow(flow_cls, flow_ns, **kwargs):
+    if flow_ns.action == 'dot':
         print_dot_graph(flow_cls)
         return
     # Create a viewer
-    if ns.trace == 'console':
+    if flow_ns.trace == 'console':
         viewer = ConsoleFlowViewer()
-    elif ns.trace == 'x11':
+    elif flow_ns.trace == 'x11':
         viewer = X11FlowViewer()
     else:
         viewer = DummyViewer()
     # Preview the flow
-    if ns.action == 'preview':
+    if flow_ns.action == 'preview':
         if isinstance(viewer, DummyViewer):
             viewer = ConsoleFlowViewer()
         try:
@@ -60,9 +68,10 @@ def main(flow_cls, argv=None):
             viewer.wait_for_exit()
         finally:
             viewer.close()
-    elif ns.action == 'run':
+    elif flow_ns.action == 'run':
         try:
-            retval = _run_flow(flow_cls, viewer, ns.pdb, ns.delay)
+            retval = _run_flow(
+                flow_cls, viewer, flow_ns.pdb, flow_ns.delay, kwargs)
             if retval is not None:
                 print("arrowhead> flow returned: {!r}".format(retval))
         except ProgrammingError as exc:
@@ -73,8 +82,8 @@ def main(flow_cls, argv=None):
             viewer.close()
 
 
-def _run_flow(flow_cls, viewer, use_pdb, delay):
-    flow = flow_cls(autostart=False)
+def _run_flow(flow_cls, viewer, use_pdb, delay, kwargs):
+    flow = flow_cls(autostart=False, **kwargs)
     viewer.update(flow, '_start')
     if use_pdb:
         print("arrowhead> about to start flow execution (pdb)")
