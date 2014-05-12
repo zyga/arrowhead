@@ -307,7 +307,8 @@ class Flow(metaclass=_FlowMeta):
     A set of connected steps.
     """
 
-    def __init__(self, autostart=True):
+    def __init__(self, autostart=True, **kwargs):
+        self.__dict__.update(kwargs)
         # Instantiate all the steps
         for name, step_cls in self.Meta.steps.items():
             setattr(self, name, step_cls())
