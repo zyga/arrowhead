@@ -22,6 +22,19 @@ class ProgrammingError(Exception):
     """
 
 
+class GraphvizNotInstalled(EnvironmentError):
+    """
+    Exception raised when graphviz is not installed
+    """
+
+    def __str__(self):
+        return '\n'.join([
+            "Part of the Graphviz project could not be found",
+            "You may need to install it to use certain features of arrowhead",
+            "On Debian systems you may install the 'graphviz' package",
+        ])
+
+
 class NoInitialStep(ProgrammingError):
     """
     Exception raised when a non-empty flow has no initial steps.

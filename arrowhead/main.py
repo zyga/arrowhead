@@ -1,4 +1,5 @@
 import argparse
+import errno
 import pdb
 import subprocess
 import tempfile
@@ -6,6 +7,7 @@ import time
 
 from arrowhead.core import Arrow, Step
 from arrowhead.errors import ProgrammingError
+from arrowhead.errors import GraphvizNotInstalled
 from arrowhead.inspector import print_dot_graph
 from arrowhead.inspector import print_flow_state
 
@@ -141,7 +143,12 @@ class X11FlowViewer:
         print_dot_graph(flow, active_step_name, file=self.dot_file)
         self.dot_file.flush()
         if self.proc is None:
-            self.proc = subprocess.Popen(['dot', '-Txlib', self.dot_file.name])
+            try:
+                self.proc = subprocess.Popen(['dot', '-Txlib', self.dot_file.name])
+            except OSError as exc:
+                if exc.errno == errno.ENOENT:
+                    raise GraphvizNotInstalled
+
 
     def close(self):
         if self.proc is not None:
