@@ -3,7 +3,7 @@ from setuptools import setup
 
 setup(
     name='arrowhead',
-    version='1.0a1',
+    version='1.0a2',
     author="Zygmunt Krynicki",
     author_email="<zkrynicki@gmail.com>",
     license='BSD',
