@@ -17,7 +17,7 @@ drawing, typically on a white-board or a piece of paper, that describes some
 process as a graph of interconnected steps.
 
 Traditionally, once designed, the process is implemented as a collection of
-functions and classes. Very often the original idea of the process was supposed
+functions and classes. Very often the original idea of how the process was supposed
 to work lost, especially after making changes over time. Usually it is
 impossible to easily reconstruct the initial idea from a complex implementation
 of that idea.
